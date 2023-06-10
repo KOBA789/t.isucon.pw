@@ -15,18 +15,19 @@ jobs:
           repository: acmesh-official/acme.sh
       - name: "Use Let's Encrypt"
         run: |
-          ./acme.sh --set-default-ca --server letsencrypt
+          mkdir -p tmp
+          ./acme.sh --home tmp --set-default-ca --server letsencrypt
       - name: "Issue certificates"
         env:
           CF_Account_ID: ${{ secrets.CF_Account_ID }}
           CF_Token: ${{ secrets.CF_Token }}
         run: |
-          ./acme.sh --issue --dns dns_cf -d '*.t.isucon.pw'
+          ./acme.sh --home tmp --issue --dns dns_cf -d '*.t.isucon.pw'
       - name: "Populate certificates"
         run: |
-          cp ~/.acme.sh/\*.t.isucon.pw_ecc/\*.t.isucon.pw.cer cert.pem
-          cp ~/.acme.sh/\*.t.isucon.pw_ecc/fullchain.cer fullchain.pem
-          cp ~/.acme.sh/\*.t.isucon.pw_ecc/\*.t.isucon.pw.key key.pem
+          cp ./tmp/\*.t.isucon.pw_ecc/\*.t.isucon.pw.cer cert.pem
+          cp ./tmp/\*.t.isucon.pw_ecc/fullchain.cer fullchain.pem
+          cp ./tmp/\*.t.isucon.pw_ecc/\*.t.isucon.pw.key key.pem
       - name: "Get timestamp"
         run: |
           echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_ENV"
