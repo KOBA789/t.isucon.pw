@@ -2,6 +2,8 @@ name: acme
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '38 13 2 * *' # run monthly (at 13:38 on day-of-month 2)
 
 permissions:
   contents: write
