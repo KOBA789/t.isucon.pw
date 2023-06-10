@@ -1,0 +1,37 @@
+name: acme
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  acme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: acmesh-official/acme.sh
+      - name: "Use Let's Encrypt"
+        run: |
+          ./acme.sh --set-default-ca --server letsencrypt
+      - name: "Issue certificates"
+        run: |
+          ./acme.sh --issue --dns dns_cf -d '*.t.isucon.pw'
+      - name: "Populate certificates"
+        run: |
+          cp ~/.acme.sh/\*.t.isucon.pw_ecc/\*.t.isucon.pw.cer cert.pem
+          cp ~/.acme.sh/\*.t.isucon.pw_ecc/fullchain.cer fullchain.pem
+          cp ~/.acme.sh/\*.t.isucon.pw_ecc/\*.t.isucon.pw.key key.pem
+      - name: "Get timestamp"
+        run: |
+          echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_ENV"
+      - name: "Release certificates"
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.TIMESTAMP }}
+          files: |
+            cert.pem
+            fullchain.pem
+            key.pem
