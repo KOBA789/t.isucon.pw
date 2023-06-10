@@ -17,6 +17,9 @@ jobs:
         run: |
           ./acme.sh --set-default-ca --server letsencrypt
       - name: "Issue certificates"
+        env:
+          CF_Account_ID: ${{ secrets.CF_Account_ID }}
+          CF_Token: ${{ secrets.CF_Token }}
         run: |
           ./acme.sh --issue --dns dns_cf -d '*.t.isucon.pw'
       - name: "Populate certificates"
